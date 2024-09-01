@@ -32,7 +32,10 @@ func (t Training) distance() float64 {
 
 // meanSpeed возвращает среднюю скорость бега или ходьбы.
 func (t Training) meanSpeed() float64 {
-	return t.distance() / (t.Duration.Minutes() / MinInHours)
+	if t.Duration.Hours() == 0 {
+		return 0
+	}
+	return t.distance() / (t.Duration.Hours())
 }
 
 // Calories возвращает количество потраченных килокалорий на тренировке.
@@ -105,13 +108,7 @@ func (r Running) Calories() float64 {
 // Это переопределенный метод TrainingInfo() из Training.
 func (r Running) TrainingInfo() InfoMessage {
 	// вставьте ваш код ниже
-	return InfoMessage{
-		TrainingType: r.TrainingType,
-		Duration:     r.Duration,
-		Distance:     r.distance(),
-		Speed:        r.meanSpeed(),
-		Calories:     r.Calories(),
-	}
+	return r.Training.TrainingInfo()
 }
 
 // Константы для расчета потраченных килокалорий при ходьбе.
@@ -135,6 +132,12 @@ func (w Walking) Calories() float64 {
 	// вставьте ваш код ниже
 	speedInMS := w.meanSpeed() * KmHInMsec
 	heightInM := w.Height / CmInM
+	if CmInM == 0 {
+		return 0
+	}
+	if heightInM == 0 {
+		return 0
+	}
 
 	countCaloriesWalk := ((CaloriesWeightMultiplier*w.Weight + (math.Pow(speedInMS, 2)/heightInM)*CaloriesSpeedHeightMultiplier*w.Weight) * w.Duration.Hours() * MinInHours)
 
@@ -145,13 +148,7 @@ func (w Walking) Calories() float64 {
 // Это переопределенный метод TrainingInfo() из Training.
 func (w Walking) TrainingInfo() InfoMessage {
 	// вставьте ваш код ниже
-	return InfoMessage{
-		TrainingType: w.TrainingType,
-		Duration:     w.Duration,
-		Distance:     w.distance(),
-		Speed:        w.meanSpeed(),
-		Calories:     w.Calories(),
-	}
+	return w.Training.TrainingInfo()
 }
 
 // Константы для расчета потраченных килокалорий при плавании.
@@ -195,13 +192,10 @@ func (s Swimming) Calories() float64 {
 // Это переопределенный метод TrainingInfo() из Training.
 func (s Swimming) TrainingInfo() InfoMessage {
 	// вставьте ваш код ниже
-	return InfoMessage{
-		TrainingType: s.TrainingType,
-		Duration:     s.Duration,
-		Distance:     s.distance(),
-		Speed:        s.meanSpeed(),
-		Calories:     s.Calories(),
-	}
+	info := s.Training.TrainingInfo()
+	info.Speed = s.meanSpeed()
+
+	return info
 }
 
 // ReadData возвращает информацию о проведенной тренировке.
